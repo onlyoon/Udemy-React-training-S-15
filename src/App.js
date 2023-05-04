@@ -6,22 +6,24 @@ import NewTask from "./components/NewTask/NewTask";
 function App() {
   const [tasks, setTasks] = useState([]);
 
-  const transformTask = useCallback((tasksObj) => {
-    const loadedTasks = [];
-
-    for (const taskKey in tasksObj) {
-      loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
-    }
-    setTasks(loadedTasks);
-  }, []);
-
-  const { isLoading, error, sendRequest: fetchTasks } = useHttp(transformTask);
+  const { isLoading, error, sendRequest: fetchTasks } = useHttp();
 
   useEffect(() => {
-    fetchTasks({
-      url: "https://udemy-react-training-70f1b-default-rtdb.firebaseio.com/tasks.json",
-    });
-  }, []);
+    const transformTasks = (tasksObj) => {
+      const loadedTasks = [];
+      for (const taskKey in tasksObj) {
+        loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
+      }
+      setTasks(loadedTasks);
+    };
+
+    fetchTasks(
+      {
+        url: "https://udemy-react-training-70f1b-default-rtdb.firebaseio.com/tasks.json",
+      },
+      transformTasks
+    );
+  }, [fetchTasks]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
